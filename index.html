@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>My Job Tracker</title>
+		<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f7fa;
+    padding: 40px;
+  }
+
+  h1 {
+    color: #333;
+  }
+
+  input, select, button {
+    padding: 8px;
+    margin-right: 6px;
+    font-size: 14px;
+  }
+
+  button {
+    background: #4f46e5;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #4338ca;
+  }
+
+  ul {
+    margin-top: 20px;
+  }
+
+  li {
+    background: white;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .input-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+/* Make inputs and selects flexible */
+.input-container input,
+.input-container select,
+.input-container button {
+  flex: 1 1 120px; /* grow, shrink, min width */
+  min-width: 100px;
+  font-size: 14px;
+}
+
+/* Make list items wrap text on small screens */
+ul#jobList li {
+  word-wrap: break-word;
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .input-container {
+    flex-direction: column;
+  }
+
+  .input-container input,
+  .input-container select,
+  .input-container button {
+    width: 100%;
+  }
+
+  ul#jobList li {
+    font-size: 14px;
+    padding: 8px;
+  }
+}
+
+</style>
+	</head>
+	<body>
+		<h1>My Job Tracker</h1>
+		<div class="input-container">
+			<input id="jobInput" placeholder="Company name"/>
+			<select id="status">
+				<option>Applied</option>
+				<option>Interview</option>
+				<option>Rejected</option>
+			</select>
+			<input type="date" id="dueDate"/>
+			<button onclick="addJob()">Add Job</button>
+		</div>
+		<label for="filterStatus">Filter by Status:</label>
+		<select id="filterStatus" onchange="renderJobs()">
+			<option value="All">All</option>
+			<option value="Applied">Applied</option>
+			<option value="Interview">Interview</option>
+			<option value="Rejected">Rejected</option>
+		</select>
+		<label for="sortJobs">Sort by:</label>
+		<select id="sortJobs" onchange="renderJobs()">
+			<option value="none">None</option>
+			<option value="name">Company Name</option>
+			<option value="due">Follow-up Date</option>
+		</select>
+		<ul id="jobList"/>
+		<script>
+  let jobs = [];
+  
+   function addJob() {
+  const input = document.getElementById("jobInput");
+  const status = document.getElementById("status");
+  const due = document.getElementById("dueDate").value;
+
+  if (input.value.trim() === "") {
+    alert("Please enter a company name!");
+    return;
+  }
+  
+   // Prevent duplicates
+  const exists = jobs.some(job => job.name.toLowerCase() === input.value.trim().toLowerCase() && job.status === status.value);
+  if (exists) {
+    alert("This job already exists!");
+    return;
+  }
+
+
+  const job = {
+    name: input.value.trim(),
+    status: status.value,
+	 due: due || null // null if no date selected
+  };
+
+  jobs.push(job);
+  renderJobs();
+
+  input.value = "";
+  document.getElementById("dueDate").value = ""; // reset date input
+  saveJobs();
+}
+
+function renderJobs() {
+
+// Get filter & sort values
+const filterValue = document.getElementById("filterStatus").value;
+const sortValue = document.getElementById("sortJobs").value;
+
+// Apply filter
+let displayedJobs = [...jobs]; // copy array
+if (filterValue !== "All") {
+  displayedJobs = displayedJobs.filter(job => job.status === filterValue);
+}
+
+// Apply sort
+if (sortValue === "name") {
+  displayedJobs.sort((a, b) => a.name.localeCompare(b.name));
+} else if (sortValue === "due") {
+  displayedJobs.sort((a, b) => {
+    if (!a.due) return 1; // jobs without date go last
+    if (!b.due) return -1;
+    return a.due.localeCompare(b.due);
+  });
+}
+  const list = document.getElementById("jobList");
+  list.innerHTML = "";
+
+  displayedJobs.forEach((job, index) => {
+  const li = document.createElement("li");
+
+  // Create span for job text
+  const textSpan = document.createElement("span");
+  textSpan.textContent = job.name + " - " + job.status +  (job.due ? " (Follow-up: " + job.due + ")" : "") + " ";
+  
+  // Color coding
+  if (job.status === "Applied") {
+    li.style.backgroundColor = "#3b82f6";
+    li.style.color = "white";
+  } else if (job.status === "Interview") {
+    li.style.backgroundColor = "#10b981";
+    li.style.color = "white";
+  } else if (job.status === "Rejected") {
+    li.style.backgroundColor = "#ef4444";
+    li.style.color = "white";
+  }
+  
+  if (job.due) {
+  const today = new Date().toISOString().split("T")[0];
+  if (job.due < today) { li.style.border="2px solid #ef4444" ; red border for overdue } } li.appendChild(textSpan); Edit button const editBtn=document.createElement("button" ); editBtn.textContent="✏️" ; editBtn.onclick=function () { li.innerHTML="" ; clear li Name input const nameInput=document.createElement("input" ); nameInput.value=job.name; li.appendChild(nameInput); const statusSelect=document.createElement("select" ); ["Applied","Interview" ,"Rejected" ].forEach(s=> {
+  const option = document.createElement("option");
+  option.value = s;
+  option.textContent = s;
+  if (s === job.status) option.selected = true;
+  statusSelect.appendChild(option);
+});
+    li.appendChild(statusSelect);
+	
+	// Date input
+const dateInput = document.createElement("input");
+dateInput.type = "date";
+dateInput.value = job.due || ""; // show current date if exists
+li.appendChild(dateInput);
+
+    const saveBtn = document.createElement("button");
+    saveBtn.textContent = "💾";
+    saveBtn.onclick = function () {
+      // Prepare new values
+const newName = nameInput.value.trim() || job.name;
+const newStatus = statusSelect.value;
+  const newDate = dateInput.value || null;
+
+// Check for duplicates (ignore current job index)
+const exists = jobs.some((j, i) => i !== index && j.name.toLowerCase() === newName.toLowerCase() && j.status === newStatus);
+if (exists) {
+  alert("Another job with same name and status already exists!");
+  return;
+}
+
+// Save
+job.name = newName;
+job.status = newStatus;
+  job.due = newDate;
+saveJobs();
+renderJobs();
+    };
+
+    li.appendChild(saveBtn);
+  };
+  li.appendChild(editBtn);
+
+  // Delete button
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "❌";
+  deleteBtn.onclick = function () {
+  const originalIndex = jobs.indexOf(job); // find real index
+  if (originalIndex > -1) jobs.splice(originalIndex, 1);
+  renderJobs();
+  saveJobs();
+  };
+  li.appendChild(deleteBtn);
+
+  list.appendChild(li);
+});
+}
+
+function saveJobs() {
+  localStorage.setItem("jobs", JSON.stringify(jobs));
+}
+
+window.onload = function() {
+  const saved = localStorage.getItem("jobs");
+  if (saved) {
+    jobs = JSON.parse(saved);
+    renderJobs();
+  }
+};
+  </script>
+		</body>
+	</html>
