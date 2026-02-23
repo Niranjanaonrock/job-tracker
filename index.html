@@ -190,7 +190,12 @@ if (sortValue === "name") {
   
   if (job.due) {
   const today = new Date().toISOString().split("T")[0];
-  if (job.due < today) { li.style.border="2px solid #ef4444" ; red border for overdue } } li.appendChild(textSpan); Edit button const editBtn=document.createElement("button" ); editBtn.textContent="✏️" ; editBtn.onclick=function () { li.innerHTML="" ; clear li Name input const nameInput=document.createElement("input" ); nameInput.value=job.name; li.appendChild(nameInput); const statusSelect=document.createElement("select" ); ["Applied","Interview" ,"Rejected" ].forEach(s=> {
+  if (job.due < today) { li.style.border="2px solid #ef4444" ; //red border for overdue 
+					   } } li.appendChild(textSpan);// Edit button 
+	  const editBtn=document.createElement("button" ); 
+	  editBtn.textContent="✏️" ;
+	  editBtn.onclick=function () { li.innerHTML="" ; //clear li Name input 
+								   const nameInput=document.createElement("input" ); nameInput.value=job.name; li.appendChild(nameInput); const statusSelect=document.createElement("select" ); ["Applied","Interview" ,"Rejected" ].forEach(s=> {
   const option = document.createElement("option");
   option.value = s;
   option.textContent = s;
@@ -260,4 +265,5 @@ window.onload = function() {
 };
   </script>
 		</body>
+
 	</html>
